@@ -21,7 +21,7 @@ class HealthMonitorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Health Monitor - VU Group 7',
+      title: 'OmniCare',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F4E79), primary: const Color(0xFF1F4E79), secondary: const Color(0xFF2E75B6)),

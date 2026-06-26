@@ -1,6 +1,6 @@
 {
-    "name": "health_monitor_app",
-    "short_name": "health_monitor_app",
+    "name": "OmniCare",
+    "short_name": "OmniCare",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

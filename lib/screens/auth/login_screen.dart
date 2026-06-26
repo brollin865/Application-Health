@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const Icon(Icons.health_and_safety, size: 60, color: Color(0xFF1F4E79)),
                     const SizedBox(height: 8),
-                    const Text('Health Monitor', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1F4E79))),
+                    const Text('OmniCare', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1F4E79))),
                     const Text('Entebbe General Referral Hospital', style: TextStyle(fontSize: 12, color: Colors.grey)),
                     const SizedBox(height: 28),
                     if (_error != null)
