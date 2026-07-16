@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/auth_widgets.dart';
 
+final RegExp _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
   @override
@@ -117,7 +119,11 @@ class _RegisterForm extends StatelessWidget {
             controller: emailCtrl,
             keyboardType: TextInputType.emailAddress,
             decoration: authFieldDecoration(label: 'Email Address', icon: Icons.email_outlined),
-            validator: (v) => v!.isEmpty ? 'Enter your email' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Enter your email';
+              if (!_emailRegex.hasMatch(v.trim())) return 'Enter a valid email address';
+              return null;
+            },
           ),
           const SizedBox(height: 16),
           TextFormField(

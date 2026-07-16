@@ -6,7 +6,8 @@ const _kNavy = Color(0xFF1F4E79);
 const _kBlue = Color(0xFF2E75B6);
 
 class DoctorConsultationScreen extends StatefulWidget {
-  const DoctorConsultationScreen({super.key});
+  const DoctorConsultationScreen({super.key, this.initialFilter = 'all'});
+  final String initialFilter;
   @override
   State<DoctorConsultationScreen> createState() => _DoctorConsultationScreenState();
 }
@@ -14,22 +15,34 @@ class DoctorConsultationScreen extends StatefulWidget {
 class _DoctorConsultationScreenState extends State<DoctorConsultationScreen> {
   List<dynamic> _consultations = [];
   List<dynamic> _diagnoses = [];
+  Map<int, String> _symptomNames = {};
   bool _loading = true;
-  String _filter = 'all';
+  late String _filter = widget.initialFilter;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
     try {
-      final cRes = await ApiService.get('consultations');
-      final dRes = await ApiService.get('diagnoses');
+      final results = await Future.wait([
+        ApiService.get('consultations'),
+        ApiService.get('diagnoses'),
+        ApiService.get('symptoms'),
+      ]);
+      final symptoms = results[2]['data'] as List;
       setState(() {
-        _consultations = cRes['data'];
-        _diagnoses = dRes['data'];
+        _consultations = results[0]['data'];
+        _diagnoses = results[1]['data'];
+        _symptomNames = {for (final s in symptoms) s['id'] as int: s['name'] as String};
         _loading = false;
       });
     } catch (_) { setState(() => _loading = false); }
+  }
+
+  List<String> _symptomsFor(Map consultation) {
+    final ids = consultation['symptoms'];
+    if (ids is! List) return const [];
+    return ids.map((id) => _symptomNames[id] ?? 'Unknown').toList();
   }
 
   void _openReview(Map consultation) {
@@ -74,8 +87,28 @@ class _DoctorConsultationScreenState extends State<DoctorConsultationScreen> {
                   const SizedBox(width: 6),
                   Text('Severity: ${consultation['severity'] ?? '—'}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5)),
                 ]),
-                const SizedBox(height: 8),
-                Text('Notes: ${consultation['notes'] ?? '—'}', style: const TextStyle(color: Colors.black54, fontSize: 13, height: 1.4)),
+                const SizedBox(height: 10),
+                Text('Reported Symptoms', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Colors.grey[600])),
+                const SizedBox(height: 6),
+                Builder(builder: (_) {
+                  final symptoms = _symptomsFor(consultation);
+                  if (symptoms.isEmpty) {
+                    return Text(consultation['notes'] ?? 'No symptoms recorded', style: const TextStyle(color: Colors.black54, fontSize: 13, height: 1.4));
+                  }
+                  return Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: symptoms.map((name) => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(color: _kBlue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                      child: Text(name, style: const TextStyle(color: _kNavy, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                    )).toList(),
+                  );
+                }),
+                if ((consultation['notes'] as String?)?.isNotEmpty == true && _symptomsFor(consultation).isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text('Notes: ${consultation['notes']}', style: const TextStyle(color: Colors.black54, fontSize: 13, height: 1.4)),
+                ],
               ]),
             ),
             const SizedBox(height: 16),

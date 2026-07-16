@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/dashboard_widgets.dart';
+import 'doctor_consultation_screen.dart';
 
 const _kNavy = Color(0xFF1F4E79);
 const _kBlue = Color(0xFF2E75B6);
@@ -74,10 +75,10 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12,
                         childAspectRatio: 1.15, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          StatCard(label: 'Total Patients', value: '${_stats?["total_patients"] ?? 0}', icon: Icons.people, color: _kBlue),
-                          StatCard(label: 'Pending', value: '${_stats?["pending_consultations"] ?? 0}', icon: Icons.pending_actions, color: Colors.orange),
-                          StatCard(label: 'Completed', value: '${_stats?["completed_consultations"] ?? 0}', icon: Icons.check_circle, color: Colors.green),
-                          StatCard(label: 'Diagnoses', value: '${_stats?["total_diagnoses"] ?? 0}', icon: Icons.medical_services, color: Colors.purple),
+                          _tappableStat(StatCard(label: 'Total Patients', value: '${_stats?["total_patients"] ?? 0}', icon: Icons.people, color: _kBlue), 'all'),
+                          _tappableStat(StatCard(label: 'Pending', value: '${_stats?["pending_consultations"] ?? 0}', icon: Icons.pending_actions, color: Colors.orange), 'pending'),
+                          _tappableStat(StatCard(label: 'Completed', value: '${_stats?["completed_consultations"] ?? 0}', icon: Icons.check_circle, color: Colors.green), 'completed'),
+                          _tappableStat(StatCard(label: 'Diagnoses', value: '${_stats?["total_diagnoses"] ?? 0}', icon: Icons.medical_services, color: Colors.purple), 'all'),
                         ],
                       ),
                     ),
@@ -128,6 +129,18 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _tappableStat(Widget child, String filter) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(kDashboardRadius),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(kDashboardRadius),
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorConsultationScreen(initialFilter: filter))),
+        child: child,
+      ),
     );
   }
 

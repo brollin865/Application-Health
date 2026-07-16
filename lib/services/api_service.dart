@@ -7,7 +7,7 @@ class ApiService {
   // macOS/Chrome desktop targets share the host machine's network,
   // so localhost reaches the Laravel server running on this Mac.
   //fstatic const String baseUrl = 'http://10.0.2.2.8000/api';
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'http://192.168.9.80:8000/api';
 //For physical device: use your local IP e.g. 'http://192.168.13.14/api'
   // For production:      'https://your-domain.com/api'
   // ────────────────────────────────────────────────────────
