@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/dashboard_widgets.dart';
+
+const _kNavy = Color(0xFF1F4E79);
+const _kBlue = Color(0xFF2E75B6);
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -65,9 +69,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  InputDecoration _decoration({required String label, required IconData icon, bool alignTop = false}) {
+    OutlineInputBorder border(Color c, double w) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: c, width: w),
+        );
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, size: 20),
+      alignLabelWithHint: alignTop,
+      filled: true,
+      fillColor: const Color(0xFFF6F8FB),
+      border: border(const Color(0xFFE1E7EF), 1),
+      enabledBorder: border(const Color(0xFFE1E7EF), 1),
+      focusedBorder: border(_kBlue, 1.6),
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final initial = _nameCtrl.text.isNotEmpty ? _nameCtrl.text[0].toUpperCase() : null;
+
     return Scaffold(
+      backgroundColor: const Color(0xFFEEF2F7),
       appBar: AppBar(title: const Text('My Profile'), actions: [
         IconButton(icon: const Icon(Icons.logout), onPressed: () async {
           await AuthService.logout();
@@ -76,42 +101,121 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }),
       ]),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: _kNavy))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Form(
                 key: _formKey,
                 child: Column(children: [
-                  const CircleAvatar(radius: 40, backgroundColor: Color(0xFF1F4E79), child: Icon(Icons.person, size: 44, color: Colors.white)),
-                  const SizedBox(height: 20),
-                  TextFormField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person_outline)), validator: (v) => v!.isEmpty ? 'Required' : null),
-                  const SizedBox(height: 12),
-                  Row(children: [
-                    Expanded(child: TextFormField(controller: _ageCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Age', prefixIcon: Icon(Icons.cake)))),
-                    const SizedBox(width: 12),
-                    Expanded(child: DropdownButtonFormField<String>(
-                      initialValue: _gender,
-                      decoration: const InputDecoration(labelText: 'Gender', prefixIcon: Icon(Icons.wc)),
-                      items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-                      onChanged: (v) => setState(() => _gender = v!),
-                    )),
-                  ]),
-                  const SizedBox(height: 12),
-                  TextFormField(controller: _phoneCtrl, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'Phone Number', prefixIcon: Icon(Icons.phone))),
-                  const SizedBox(height: 12),
-                  TextFormField(controller: _addressCtrl, maxLines: 2, decoration: const InputDecoration(labelText: 'Residential Address', prefixIcon: Icon(Icons.location_on))),
-                  const SizedBox(height: 12),
-                  TextFormField(controller: _emergCtrl, decoration: const InputDecoration(labelText: 'Emergency Contact', prefixIcon: Icon(Icons.emergency))),
-                  const SizedBox(height: 12),
-                  TextFormField(controller: _histCtrl, maxLines: 3, decoration: const InputDecoration(labelText: 'Medical History', prefixIcon: Icon(Icons.history), alignLabelWithHint: true)),
+                  FadeSlideIn(
+                    child: Center(
+                      child: Container(
+                        width: 88, height: 88,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(colors: [_kNavy, _kBlue]),
+                          boxShadow: [BoxShadow(color: _kNavy.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
+                        ),
+                        alignment: Alignment.center,
+                        child: initial != null
+                            ? Text(initial, style: const TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.bold))
+                            : const Icon(Icons.person_rounded, size: 42, color: Colors.white),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
-                  SizedBox(width: double.infinity, child: ElevatedButton(
-                    onPressed: _saving ? null : _save,
-                    child: _saving ? const CircularProgressIndicator(color: Colors.white) : const Text('SAVE PROFILE'),
-                  )),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 60),
+                    child: _section(
+                      title: 'Personal Information',
+                      icon: Icons.badge_outlined,
+                      children: [
+                        TextFormField(controller: _nameCtrl, decoration: _decoration(label: 'Full Name', icon: Icons.person_outline), validator: (v) => v!.isEmpty ? 'Required' : null),
+                        const SizedBox(height: 14),
+                        Row(children: [
+                          Expanded(child: TextFormField(controller: _ageCtrl, keyboardType: TextInputType.number, decoration: _decoration(label: 'Age', icon: Icons.cake_outlined))),
+                          const SizedBox(width: 12),
+                          Expanded(child: DropdownButtonFormField<String>(
+                            initialValue: _gender,
+                            decoration: _decoration(label: 'Gender', icon: Icons.wc_outlined),
+                            items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                            onChanged: (v) => setState(() => _gender = v!),
+                          )),
+                        ]),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 120),
+                    child: _section(
+                      title: 'Contact Information',
+                      icon: Icons.contact_phone_outlined,
+                      children: [
+                        TextFormField(controller: _phoneCtrl, keyboardType: TextInputType.phone, decoration: _decoration(label: 'Phone Number', icon: Icons.phone_outlined)),
+                        const SizedBox(height: 14),
+                        TextFormField(controller: _addressCtrl, maxLines: 2, decoration: _decoration(label: 'Residential Address', icon: Icons.location_on_outlined)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 180),
+                    child: _section(
+                      title: 'Medical Information',
+                      icon: Icons.medical_information_outlined,
+                      children: [
+                        TextFormField(controller: _emergCtrl, decoration: _decoration(label: 'Emergency Contact', icon: Icons.emergency_outlined)),
+                        const SizedBox(height: 14),
+                        TextFormField(controller: _histCtrl, maxLines: 3, decoration: _decoration(label: 'Medical History', icon: Icons.history_rounded, alignTop: true)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 240),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          gradient: _saving ? null : const LinearGradient(colors: [_kNavy, _kBlue]),
+                          color: _saving ? Colors.grey[300] : null,
+                          boxShadow: _saving ? null : [BoxShadow(color: _kNavy.withValues(alpha: 0.32), blurRadius: 16, offset: const Offset(0, 8))],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            onTap: _saving ? null : _save,
+                            child: Center(
+                              child: _saving
+                                  ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: _kNavy, strokeWidth: 2.4))
+                                  : const Text('SAVE PROFILE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, letterSpacing: 0.6)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ]),
               ),
             ),
+    );
+  }
+
+  Widget _section({required String title, required IconData icon, required List<Widget> children}) {
+    return DashboardCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(title: title, icon: icon),
+          const SizedBox(height: 14),
+          ...children,
+        ],
+      ),
     );
   }
 }
